@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results</title>
+    <style>
+        :root {
+            --bg-color: #0F172A;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --text: #F8FAFC;
+            --text-muted: #94A3B8;
+            --critical: #EF4444;
+            --high: #F97316;
+            --low: #10B981;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), #1E1B4B);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .section {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        h2 {
+            font-size: 1.125rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #E2E8F0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+        .info-row {
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        .info-value {
+            font-size: 0.95rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .urgency-critical { background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.5); }
+        .urgency-high { background: rgba(249, 115, 22, 0.2); color: #FDBA74; border: 1px solid rgba(249, 115, 22, 0.5); }
+        .urgency-low { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.5); }
+        pre {
+            background: #000;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: #A7F3D0;
+        }
+        a.button {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            padding: 0.875rem;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 0.5rem;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+        a.button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Triage Results</h1>
+
+        <div class="section">
+            <h2>Text Analysis (Triage)</h2>
+            <div class="info-row">
+                <span class="info-label">Category Match</span>
+                <span class="info-value"><strong>{{ triage.name }}</strong></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Urgency Level</span>
+                <div>
+                    <span class="badge 
+                        {% if triage.urgency == 'Critical' %}urgency-critical
+                        {% elif triage.urgency == 'High' %}urgency-high
+                        {% else %}urgency-low{% endif %}">
+                        {{ triage.urgency }}
+                    </span>
+                </div>
+            </div>
+            {% if triage.name != 'Low priority / routine review' %}
+            <div class="info-row">
+                <span class="info-label">Decision at Risk</span>
+                <span class="info-value">{{ triage.decision }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Potential Consequence</span>
+                <span class="info-value">{{ triage.consequence }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Recommended Action</span>
+                <span class="info-value">{{ triage.action }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>File Authenticity (Reality Defender)</h2>
+            {% if rd_result and rd_result.get('error') %}
+                <div style="color: #FCA5A5; font-size: 0.9rem;">
+                    Error communicating with Reality Defender: {{ rd_result.error }}
+                </div>
+            {% else %}
+                <pre>{{ rd_result | tojson(indent=2) }}</pre>
+            {% endif %}
+        </div>
+
+        <a href="/" class="button">Analyze Another</a>
+    </div>
+</body>
+</html>
